@@ -1,6 +1,19 @@
 use KittyTorrents::Archive;
+use URI;
 
-sub MAIN(Str $root, Str :$start, Str :$end, Str :$db = 'kt.db', Str :$logfile = 'kt.log' ) {
+
+#subset UriStr of Str where {URI.new($_).so};
+subset DateStr of Str where {$_.Date.so};
+
+sub MAIN(
+    Str $root  = 'http://www.torkitty.net', 
+    DateStr :$start , 
+    DateStr :$end , 
+    Str :$db = 'test.db', 
+    Str :$logfile = 'test.log' ) {
+    
+    die "The param root is not a URI !" unless URI.new($root).scheme;
+    
     my $archive = KittyTorrents::Archive.new(
       root => $root,
       start     => Date.new($start),

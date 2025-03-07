@@ -22,10 +22,11 @@
   },
   "resources": [
   ],
-  "source-url": "",
+  "source-url": "https://github.com/skyter10086/KittyTorrents-Archive.git",
   "tags": [
+    "Web-Crawler"
   ],
   "test-depends": [
   ],
-  "version": "0.0.1"
+  "version": "0.1.1"
 }

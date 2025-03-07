@@ -46,15 +46,15 @@ This library is free software; you can redistribute it and/or modify it under th
 
 =end pod
 
-has Str $.root;
+has Str $.root = 'http://www.torkitty.net';
 
 has Date $.start;
 
 has Date $.end;
 
-has Str $.db-source;
+has Str $.db-source = 'test.db';
 
-has Str $.logfile;
+has Str $.logfile = 'test.log';
 
 #method query-torrents(Str $keyword --> List[Hash]) { ... }
 method !db() {

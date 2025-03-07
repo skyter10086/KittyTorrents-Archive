@@ -1,0 +1,14 @@
+use KittyTorrents::Archive;
+
+sub MAIN(Str $root, Str :$start, Str :$end, Str :$db = 'kt.db', Str :$logfile = 'kt.log' ) {
+    my $archive = KittyTorrents::Archive.new(
+      root => $root,
+      start     => Date.new($start),
+      end       => Date.new($end),
+      db-source => $db,
+      logfile       => $logfile,
+    );
+
+    $archive.crawl();
+
+}

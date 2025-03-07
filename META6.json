@@ -1,0 +1,30 @@
+{
+  "authors": [
+    "skyter10086"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+    "URI",
+    "Logger",
+    "DB::SQLite",
+    "XML::Query",
+    "HTTP::Tinyish",
+    "HTML::Parser::XML"
+  ],
+  "description": "A web crawler for TorrentKitty :)",
+  "license": "Artistic-2.0",
+  "name": "KittyTorrents::Archive",
+  "perl": "6.d",
+  "provides": {
+    "KittyTorrents::Archive": "lib/KittyTorrents/Archive.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}

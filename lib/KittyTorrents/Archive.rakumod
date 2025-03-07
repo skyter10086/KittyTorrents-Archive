@@ -19,11 +19,20 @@ KittyTorrents::Archive - blah blah blah
 
 use KittyTorrents::Archive;
 
+my $kt = KittyTorrents::Archive.new(
+    :root<http://www.torkitty.net>
+    :start(Date.new(2025,1,1))
+    :end(Date.new(2025,1,31))
+    :db-source<kt.db>
+    :logfile<kt.log>
+);
+$kt.crawl();
+
 =end code
 
 =head1 DESCRIPTION
 
-KittyTorrents::Archive is ...
+KittyTorrents::Archive is A simple web crawler for TorrentKitty.
 
 =head1 AUTHOR
 
@@ -150,9 +159,9 @@ method crawl() {
             my $percent = $_ / @pages.elems * 100; # calculate a percentage
             sleep 0.0002;                  # do iterative work here
             $hash-bar.show: $percent;
-            say();
+            
         }
-        
+        say();
         #my $percent = $_ / @paths.elems * 100; # calculate a percentage
         #sleep 0.0002;                  # do iterative work here
         #$hash-bar.show: $percent;

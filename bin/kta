@@ -1,27 +1,42 @@
 use KittyTorrents::Archive;
-use URI;
-
+#use URI;
 
 #subset UriStr of Str where {URI.new($_).so};
-subset DateStr of Str where {$_.Date.so};
+subset DateStr of Str where { $_.Date.so };
 
-sub MAIN(
-    Str $root  = 'http://www.torkitty.net', 
-    DateStr :$start , 
-    DateStr :$end , 
-    Str :$db = 'test.db', 
-    Str :$logfile = 'test.log' ) {
-    
-    die "The param root is not a URI !" unless URI.new($root).scheme;
-    
+
+
+
+
+multi MAIN() { 
+  print Q:c:to/EOH/;
+  Usage:
+  kta [--start=<Str>] [--end=<Str>] [--db=<Str>] [--logfile=<Str>] [<root>]
+EOH
+}
+
+
+
+multi  MAIN(
+    Str $root = 'http://www.torkitty.net' ,
+    DateStr :$start,
+    DateStr :$end,
+    Str :$db = 'test.db',
+    Str :$logfile = 'test.log'
+  )
+{
+
+    #die "The param root is not a URI !" unless URI . new($root) . scheme;
+
     my $archive = KittyTorrents::Archive.new(
-      root => $root,
-      start     => Date.new($start),
-      end       => Date.new($end),
-      db-source => $db,
-      logfile       => $logfile,
-    );
+        root      => $root,
+        start     => Date.new($start),
+        end       => Date.new($end),
+        db-source => $db,
+        logfile   => $logfile,
+      );
 
     $archive.crawl();
 
 }
+

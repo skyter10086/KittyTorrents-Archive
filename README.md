@@ -4,20 +4,16 @@
 A Simple web crawler for TorrentKitty :)
 
 #### 软件架构
-软件架构说明
+由类KittyTorrents::Archive和命令行脚本kta组成，100%Raku语言编写。HTTP::Tinyish负责发送http请求，HTML::Parser::XML和XML::Query解析页面，
+DB::SQLite存储数据到本地SQLite文件，Logger负责日志记录,Terminal::Spinners显示处理进度。
 
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  zef install https://github.com/skyter10086/KittyTorrents-Archive.git
+2.  kta --start=2025-01-01 --end=2025-01-03 
+3.  tail -f test.log
 
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
 
 #### 参与贡献
 

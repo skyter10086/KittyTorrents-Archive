@@ -10,7 +10,8 @@
     "DB::SQLite",
     "XML::Query",
     "HTTP::Tinyish",
-    "HTML::Parser::XML"
+    "HTML::Parser::XML",
+    "Terminal::Spinners"
   ],
   "description": "A web crawler for TorrentKitty :)",
   "license": "Artistic-2.0",

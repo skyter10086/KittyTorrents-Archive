@@ -1,4 +1,4 @@
-unit class KittyTorrents::Archive:ver<0.0.1>:auth<github:skyter10086>:api<1>;
+unit class KittyTorrents::Archive:ver<0.0.1>:auth<zef:skyter10086>:api<1>;
 
 use HTML::Parser::XML;
 use XML::Query;

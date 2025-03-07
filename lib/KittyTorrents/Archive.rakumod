@@ -6,7 +6,7 @@ use HTTP::Tinyish;
 use DB::SQLite;
 use Logger;
 use URI;
-
+use Terminal::Spinners;
 =begin pod
 
 =head1 NAME
@@ -37,15 +37,15 @@ This library is free software; you can redistribute it and/or modify it under th
 
 =end pod
 
-has Str $.root = "http://www.torkitty.net";
+has Str $.root;
 
-has Date $.start = Date.new(2024,12,1);
+has Date $.start;
 
-has Date $.end = Date.new(2024,12,31);
+has Date $.end;
 
-has Str $.db-source = 'test.db';
+has Str $.db-source;
 
-has Str $.logfile  = 'kt.log';
+has Str $.logfile;
 
 #method query-torrents(Str $keyword --> List[Hash]) { ... }
 method !db() {
@@ -114,25 +114,52 @@ method crawl() {
     
     my $sth-insert = self!db.prepare('INSERT OR IGNORE INTO Torrents (id, title, subject, link) VALUES (?, ?, ?, ?)');
     my @paths = self.build-path;
-    for @paths -> $path {
+    
+    say "*" x 50;
+    say "             Starting Work!!!";
+    say '*' x 50;
+    
+  
+
+    for  @paths -> $path  {
+        #my $i = $_ - 1;
+        #my $path = @paths[$i];
+        
         my $max-page = self.max-page($path);
         next if $max-page == 0;
+        say "{URI.new($path).path}:";
+        my $hash-bar = Bar.new: type => 'hash', length => 50;
+        $hash-bar.show: 0;
+        
         my @pages = (1 .. $max-page).map: $path ~ '/' ~ *;
-        for @pages {
-            my $warn = "Extracting page: " ~ $_ ~ " ... ";
+        
+        for 1 .. @pages.elems {
+            my $i = $_ - 1;
+            my $page = @pages[$i];
+
+            my $warn = "Extracting page: " ~ $page ~ " ... ";
             self!log.warn($warn);
-            if my @mags = self.extract-magnet($_) {
+            if my @mags = self.extract-magnet($page) {
                 @mags.map: -> $m { 
                     $sth-insert.execute($m<id>, $m<title>, $m<subject>, $m<link>);
                     my $msg = "Torrent {$m<id>} -- {$m<title>} has been inserted.";
                     self!log.info($msg);
                 }
             }
-        }         
+
+            my $percent = $_ / @pages.elems * 100; # calculate a percentage
+            sleep 0.0002;                  # do iterative work here
+            $hash-bar.show: $percent;
+            say();
+        }
+        
+        #my $percent = $_ / @paths.elems * 100; # calculate a percentage
+        #sleep 0.0002;                  # do iterative work here
+        #$hash-bar.show: $percent;
     }
     $sth-insert.finish;
     self!db.finish;
-    say "*" x 50;
+    say();
     say "    All Jobs Done! Good Luck!!!";
-    say '*' x 50;
+    #say '*' x 50;
 }

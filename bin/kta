@@ -2,32 +2,21 @@ use KittyTorrents::Archive;
 #use URI;
 
 #subset UriStr of Str where {URI.new($_).so};
-subset DateStr of Str where { $_.Date.so };
+subset DateStr of Str where *.Date.so ;
+#| Torrnet Scrawler
 
+sub  MAIN(
+    DateStr $start,    #= 起始日期
+    DateStr $end,    #= 结束日期
 
-
-
-
-multi MAIN() { 
-  print Q:c:to/EOH/;
-  Usage:
-  kta [--start=<Str>] [--end=<Str>] [--db=<Str>] [--logfile=<Str>] [<root>]
-EOH
-}
-
-
-
-multi  MAIN(
-    Str $root = 'http://www.torkitty.net' ,
-    DateStr :$start,
-    DateStr :$end,
-    Str :$db = 'test.db',
-    Str :$logfile = 'test.log'
+    Str :r($root)= 'http://www.torkitty.net',  #= TorrentKitty 根目录
+    Str :$db = 'test.db', #= 数据库文件名
+    Str :$logfile = 'test.log' #= log文件名
   )
 {
 
     #die "The param root is not a URI !" unless URI . new($root) . scheme;
-
+  
     my $archive = KittyTorrents::Archive.new(
         root      => $root,
         start     => Date.new($start),
@@ -39,4 +28,6 @@ multi  MAIN(
     $archive.crawl();
 
 }
+
+
 

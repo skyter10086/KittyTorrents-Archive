@@ -12,7 +12,7 @@ DB::SQLite存储数据到本地SQLite文件，Logger负责日志记录,Terminal:
 
 ```
 zef install https://github.com/skyter10086/KittyTorrents-Archive.git
-kta --start=2025-01-01 --end=2025-01-03 
+kta 2025-01-01 2025-01-03 
 tail -f test.log
 ```
 

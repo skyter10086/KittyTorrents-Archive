@@ -2,7 +2,7 @@
   "authors": [
     "zef:skyter10086"
   ],
-  auth: ["zef:skyter10086"],
+  "auth": ["zef:skyter10086"],
   "build-depends": [
   ],
   "depends": [

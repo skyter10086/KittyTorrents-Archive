@@ -52,9 +52,9 @@ has Date $.start;
 
 has Date $.end;
 
-has Str $.db-source = 'test.db';
+has Str $.db-source;
 
-has Str $.logfile = 'test.log';
+has Str $.logfile;
 
 #method query-torrents(Str $keyword --> List[Hash]) { ... }
 method !db() {
@@ -84,13 +84,17 @@ method max-page(Str $url --> Int) {
     my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
     my $res = $ua.get: $url;
     my $content = $res.<content> if $res<success>;
-    return 0 unless $res<success>;
+    #say $res<success>;
+    #say $content;
+    return 0.Int unless $res<success>;
 
     my $parser = HTML::Parser::XML.new;
     my $doc = $parser.parse($content);
     my $xq = XML::Query.new($doc);
-
-    my Int $max-page = $xq('div .pagination').find('a').elements.map(*.attribs<href>.Int).max;
+    my $paginations = $xq('div .pagination').find('a').elements.map(*.attribs<href>);
+    return 1.Int unless $paginations ;
+    my Int $max-page = $paginations.map(*.Int).max;
+    
  }
 
 method extract-magnet(Str $url) { 

@@ -1,8 +1,11 @@
 use KittyTorrents::Archive;
 #use URI;
+use Grammar::DSN;
+use DB::Source; 
 
 #subset UriStr of Str where {URI.new($_).so};
 subset DateStr of Str where *.Date.so ;
+subset DSN of Str where { Grammar::DSN.parse($_).so };
 #| Torrnet Scrawler
 
 sub  MAIN(
@@ -10,8 +13,8 @@ sub  MAIN(
     DateStr $end,    #= 结束日期
 
     Str :r($root)= 'http://www.torkitty.net',  #= TorrentKitty 根目录
-    Str :$db = 'test.db', #= 数据库文件名
-    Str :$logfile = 'test.log' #= log文件名
+    DSN :$dsn = 'sqlite://@test.db/', #= 数据库文件名
+    Str :l($logfile) = 'test.log' #= log文件名
   )
 {
 
@@ -21,7 +24,7 @@ sub  MAIN(
         root      => $root,
         start     => Date.new($start),
         end       => Date.new($end),
-        db-source => $db,
+        db-source => DB::Source.new(db-source => $dsn),
         logfile   => $logfile,
       );
 

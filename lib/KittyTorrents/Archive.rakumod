@@ -1,4 +1,4 @@
-unit class KittyTorrents::Archive:ver<0.0.1>:auth<zef:skyter10086>:api<1>;
+unit class KittyTorrents::Archive:ver<0.0.2>:auth<zef:skyter10086>:api<1>;
 
 use HTML::Parser::XML;
 use XML::Query;
@@ -7,6 +7,9 @@ use DB::SQLite;
 use Logger;
 use URI;
 use Terminal::Spinners;
+use DB::Source;
+use Text::Emoji;
+
 =begin pod
 
 =head1 NAME
@@ -46,33 +49,33 @@ This library is free software; you can redistribute it and/or modify it under th
 
 =end pod
 
-has Str $.root = 'http://www.torkitty.net';
+has Str $.root;
 
 has Date $.start;
 
 has Date $.end;
 
-has Str $.db-source;
+has DB::Source $.db-source;
 
 has Str $.logfile;
 
-#method query-torrents(Str $keyword --> List[Hash]) { ... }
 method !db() {
-    my $sqlite = DB::SQLite.new(filename => $!db-source);
+    my $db = $!db-source.db;
     my $ddl = q:to/DDL/;
-CREATE TABLE  if not exists Torrents
+    CREATE TABLE  if not exists Torrents
     (ID              TEXT    PRIMARY KEY     NOT NULL,
-     TITLE           TEXT    NOT NULL,
-     SUBJECT         TEXT    NOT NULL,
-     LINK            TEXT    NOT NULL)
+    TITLE           TEXT    NOT NULL,
+    SUBJECT         TEXT    NOT NULL,
+    LINK            TEXT    NOT NULL)
 DDL
-    $sqlite.execute($ddl); 
+    $db.execute($ddl); 
     self!log.warn('Connected DataBase.');
-    return $sqlite.db;   
+    return $db;   
 }
 
 method !log() {
-    return Logger.new(output => $!logfile.IO.open(:a));
+    my $log = $!logfile.IO.open(:ra);
+    return Logger.new(output => $log);
 }
 
 method build-path() {
@@ -84,21 +87,20 @@ method max-page(Str $url --> Int) {
     my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
     my $res = $ua.get: $url;
     my $content = $res.<content> if $res<success>;
-    #say $res<success>;
-    #say $content;
     return 0.Int unless $res<success>;
 
     my $parser = HTML::Parser::XML.new;
     my $doc = $parser.parse($content);
     my $xq = XML::Query.new($doc);
+    
     my $paginations = $xq('div .pagination').find('a').elements.map(*.attribs<href>);
     return 1.Int unless $paginations ;
+    
     my Int $max-page = $paginations.map(*.Int).max;
     
  }
 
 method extract-magnet(Str $url) { 
-    #my $ua = HTTP::Tiny.new: agent => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0', throw-exceptions => True; #, http-proxy => 'http://45.58.136.100:11715';
     my $uri = URI.new($url);
     my $root_ = $uri.scheme ~ '://' ~ $uri.host;
     my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
@@ -124,8 +126,16 @@ method extract-magnet(Str $url) {
  }
 
 method crawl() {
-    
-    my $sth-insert = self!db.prepare('INSERT OR IGNORE INTO Torrents (id, title, subject, link) VALUES (?, ?, ?, ?)');
+    my $ddl; 
+    given $!db-source.scheme {
+            $ddl ='INSERT OR IGNORE INTO Torrents (id, title, subject, link) VALUES (?, ?, ?, ?)'
+                when 'sqlite';
+
+            $ddl ='INSERT IGNORE INTO Torrents (id, title, subject, link) VALUES (?, ?, ?, ?)' 
+                when 'mysql';
+    }
+    my $sth-insert = self!db.prepare($ddl);
+
     my @paths = self.build-path;
     
     say "*" x 50;
@@ -135,12 +145,10 @@ method crawl() {
   
 
     for  @paths -> $path  {
-        #my $i = $_ - 1;
-        #my $path = @paths[$i];
         
         my $max-page = self.max-page($path);
         next if $max-page == 0;
-        say "{URI.new($path).path}:";
+        say "{URI.new($path).path} \({$max-page}\):";
         my $hash-bar = Bar.new: type => 'hash', length => 50;
         $hash-bar.show: 0;
         
@@ -166,13 +174,10 @@ method crawl() {
             
         }
         say();
-        #my $percent = $_ / @paths.elems * 100; # calculate a percentage
-        #sleep 0.0002;                  # do iterative work here
-        #$hash-bar.show: $percent;
     }
+
     $sth-insert.finish;
-    self!db.finish;
+    self!log.warn("Database finished!");
     say();
-    say "    All Jobs Done! Good Luck!!!";
-    #say '*' x 50;
+    say "    All Jobs Done! Good Luck!!! {to-emoji(":+1: :cow: :beer:")}";
 }

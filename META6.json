@@ -12,7 +12,10 @@
     "XML::Query:ver<1.1>",
     "HTTP::Tinyish:ver<0.4.0>",
     "HTML::Parser::XML:ver<0.1.3>",
-    "Terminal::Spinners:ver<1.6.0>"
+    "Terminal::Spinners:ver<1.6.0>",
+    "DB::Source",
+    "Grammar::DSN",
+    "Text::Emoji"
   ],
   "description": "A web crawler for TorrentKitty :)",
   "license": "Artistic-2.0",

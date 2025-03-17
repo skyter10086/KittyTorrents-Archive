@@ -13,7 +13,7 @@ sub  MAIN(
     DateStr $end,    #= 结束日期
 
     Str :r($root)= 'http://www.torkitty.net',  #= TorrentKitty 根目录
-    DSN :$dsn = 'sqlite://@test.db/', #= 数据库文件名
+    DSN :$dsn = 'sqlite://test.db/', #= 数据库文件名
     Str :l($logfile) = 'test.log' #= log文件名
   )
 {

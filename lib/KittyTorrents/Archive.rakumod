@@ -26,7 +26,7 @@ my $kt = KittyTorrents::Archive.new(
     :root<http://www.torkitty.net>
     :start(Date.new(2025,1,1))
     :end(Date.new(2025,1,31))
-    :db-source<kt.db>
+    :db-source(DB::Source.new: db-source => 'sqlite://tk.db')
     :logfile<kt.log>
 );
 $kt.crawl();

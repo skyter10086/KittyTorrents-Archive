@@ -2,7 +2,7 @@ unit class KittyTorrents::Archive:ver<0.0.2>:auth<zef:skyter10086>:api<1>;
 
 use HTML::Parser::XML;
 use XML::Query;
-use HTTP::Tinyish;
+use HTTP::Tiny;
 use DB::SQLite;
 use Logger;
 use URI;
@@ -84,9 +84,9 @@ method build-path() {
 }
 
 method max-page(Str $url --> Int) { 
-    my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
+    my $ua = HTTP::Tiny.new: :agent<Mozilla/5.0>;
     my $res = $ua.get: $url;
-    my $content = $res.<content> if $res<success>;
+    my $content = $res.<content>.decode if $res<success>;
     return 0.Int unless $res<success>;
 
     my $parser = HTML::Parser::XML.new;
@@ -103,10 +103,10 @@ method max-page(Str $url --> Int) {
 method extract-magnet(Str $url) { 
     my $uri = URI.new($url);
     my $root_ = $uri.scheme ~ '://' ~ $uri.host;
-    my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
+    my $ua = HTTP::Tiny.new: :agent<Mozilla/5.0>;
     my $res = $ua.get: $url;
     return () unless $res<success> ;
-    my $content = $res.<content> if $res<success>;
+    my $content = $res.<content>.decode if $res<success>;
 
     my $parser = HTML::Parser::XML.new;
     my $doc = $parser.parse($content);

@@ -2,7 +2,7 @@ unit class KittyTorrents::Archive:ver<0.0.2>:auth<zef:skyter10086>:api<1>;
 
 use HTML::Parser::XML;
 use XML::Query;
-use HTTP::Tiny;
+use HTTP::Tinyish;
 use DB::SQLite;
 use Logger;
 use URI;
@@ -57,13 +57,13 @@ has Date $.end;
 
 has DB::Source $.db-source;
 
-has Str $.logfile;
+has IO::Handle $.logfile;
 
 method !db() {
     my $db = $!db-source.db;
     my $ddl = q:to/DDL/;
     CREATE TABLE  if not exists Torrents
-    (ID              TEXT    PRIMARY KEY     NOT NULL,
+    (HASH             TEXT    PRIMARY KEY     NOT NULL,
     TITLE           TEXT    NOT NULL,
     SUBJECT         TEXT    NOT NULL,
     LINK            TEXT    NOT NULL)
@@ -74,8 +74,8 @@ DDL
 }
 
 method !log() {
-    my $log = $!logfile.IO.open(:ra);
-    return Logger.new(output => $log);
+    
+    return Logger.new(output => $!logfile);
 }
 
 method build-path() {
@@ -84,9 +84,9 @@ method build-path() {
 }
 
 method max-page(Str $url --> Int) { 
-    my $ua = HTTP::Tiny.new: :agent<Mozilla/5.0>;
+    my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
     my $res = $ua.get: $url;
-    my $content = $res.<content>.decode if $res<success>;
+    my $content = $res.<content> if $res<success>;
     return 0.Int unless $res<success>;
 
     my $parser = HTML::Parser::XML.new;
@@ -102,11 +102,11 @@ method max-page(Str $url --> Int) {
 
 method extract-magnet(Str $url) { 
     my $uri = URI.new($url);
-    my $root_ = $uri.scheme ~ '://' ~ $uri.host;
-    my $ua = HTTP::Tiny.new: :agent<Mozilla/5.0>;
+    # my $root_ = $uri.scheme ~ '://' ~ $uri.host;
+    my $ua = HTTP::Tinyish.new: :agent<Mozilla/5.0>;
     my $res = $ua.get: $url;
     return () unless $res<success> ;
-    my $content = $res.<content>.decode if $res<success>;
+    my $content = $res.<content> if $res<success>;
 
     my $parser = HTML::Parser::XML.new;
     my $doc = $parser.parse($content);
@@ -114,10 +114,10 @@ method extract-magnet(Str $url) {
 
     my @tags = $xq('[rel="information"]').find('a').elements;
     my @magnets;
-    for @tags {
-        my $title = $_.attribs<title>;
-        my $sub = $root_ ~ $_.attribs<href>;
-        my $id = $<tid>.Str if $sub ~~ /\/information\/$<tid>=(\S+)/;
+    for 0 .. @tags.elems -1 {
+        my $title = @tags[$_].attribs<title>;
+        my $sub = $uri.path ~ "\[$_\]";
+        my $id = $<tid>.Str if @tags[$_].attribs<href> ~~ /\/information\/$<tid>=(\S+)/;
         my $link = $xq('[rel="magnet"]').find('a').elements.grep(*.attribs<title> eq $title)[0].attribs<href>;
         @magnets.push: {id => $id, title => $title, subject => $sub, link => $link};
     }
@@ -128,10 +128,10 @@ method extract-magnet(Str $url) {
 method crawl() {
     my $ddl; 
     given $!db-source.scheme {
-            $ddl ='INSERT OR IGNORE INTO Torrents (id, title, subject, link) VALUES (?, ?, ?, ?)'
+            $ddl ='INSERT OR IGNORE INTO Torrents (hash, title, subject, link) VALUES (?, ?, ?, ?)'
                 when 'sqlite';
 
-            $ddl ='INSERT IGNORE INTO Torrents (id, title, subject, link) VALUES (?, ?, ?, ?)' 
+            $ddl ='INSERT IGNORE INTO Torrents (hash, title, subject, link) VALUES (?, ?, ?, ?)' 
                 when 'mysql';
     }
     my $sth-insert = self!db.prepare($ddl);

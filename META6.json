@@ -10,7 +10,7 @@
     "Logger:ver<0.4.6>",
     "DB::SQLite:ver<0.7>",
     "XML::Query:ver<1.1>",
-    "HTTP::Tiny:ver<0.2.6>",
+    "HTTP::Tinyish",
     "HTML::Parser::XML:ver<0.1.3>",
     "Terminal::Spinners:ver<1.6.0>",
     "DB::Source",

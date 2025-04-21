@@ -26,7 +26,7 @@ my $kt = KittyTorrents::Archive.new(
     :root<http://www.torkitty.net>
     :start(Date.new(2025,1,1))
     :end(Date.new(2025,1,31))
-    :db-source(DB::Source.new: db-source => 'sqlite://tk.db')
+    :db-source(DB::Source.new: db-source => 'sqlite://tk.db/')
     :logfile<kt.log>
 );
 $kt.crawl();
@@ -63,7 +63,7 @@ method !db() {
     my $db = $!db-source.db;
     my $ddl = q:to/DDL/;
     CREATE TABLE  if not exists Torrents
-    (HASH             TEXT    PRIMARY KEY     NOT NULL,
+    (HASH          VARCHAR(100)    PRIMARY KEY,
     TITLE           TEXT    NOT NULL,
     SUBJECT         TEXT    NOT NULL,
     LINK            TEXT    NOT NULL)
